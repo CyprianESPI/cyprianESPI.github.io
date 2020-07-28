@@ -1,3 +1,6 @@
+// global variable
+var GB_game_over = true;
+
 // Create our 'main' state that will contain the game
 var mainState = {
     preload: function() { 
@@ -44,6 +47,7 @@ var mainState = {
         this.labelScore = game.add.text(20, 20, "0", 
             { font: "30px Arial", fill: "#ffffff" }); 
         
+        
         // Move the anchor to the left and downward
         this.bird.anchor.setTo(-0.2, 0.5); 
         
@@ -51,12 +55,19 @@ var mainState = {
         this.jumpSound = game.add.audio('jump'); 
     },
 
+    // This function is called 60 times per second    
+    // It contains the game's logic
     update: function() {
-        // This function is called 60 times per second    
-        // It contains the game's logic  
-        // Call the 'restartGame' function
-        if (this.bird.y < 0 || this.bird.y > 490)
-            this.restartGame(); 
+        // if game over -> do nothing
+        if (GB_game_over == true)
+            return;
+        
+        // Bird dies if it goes off the screen
+        if (this.bird.y < 0 || this.bird.y > 490){
+            this.bird.alive = false;
+            this.gameOver();
+            return;
+        }
         
         // Restart the game in case of collision
         game.physics.arcade.overlap(
@@ -66,8 +77,12 @@ var mainState = {
         if (this.bird.angle < 20)
             this.bird.angle += 1; 
     },
+    
     // Make the bird jump 
     jump: function() {
+        // trigger restart of game if game is over
+        if (GB_game_over == true)
+            this.restartGame();        
         
         // block jumping if the bird is dead
         if (this.bird.alive == false)
@@ -109,24 +124,42 @@ var mainState = {
     },
     
     addRowOfPipes: function() {
-    // Randomly pick a number between 1 and 5
-    // This will be the hole position
-    var hole = Math.floor(Math.random() * 5) + 1;
-
-    // Add the 6 pipes 
-    // With one big hole at position 'hole' and 'hole + 1'
-    for (var i = 0; i < 8; i++)
-        if (i != hole && i != hole + 1) 
-            this.addOnePipe(400, i * 60 + 10); 
     
-    this.score += 1;
-    this.labelScore.text = this.score; 
-    },
+        // Do nothing if the game is over
+        if (GB_game_over == true)
+            return;
+        
+        // Randomly pick a number between 1 and 5
+        // This will be the hole position
+        var hole = Math.floor(Math.random() * 5) + 1;
 
+        // Add the 6 pipes 
+        // With one big hole at position 'hole' and 'hole + 1'
+        for (var i = 0; i < 8; i++)
+            if (i != hole && i != hole + 1) 
+                this.addOnePipe(400, i * 60 + 10); 
+
+        this.score += 1;
+        this.labelScore.text = this.score; 
+    },
+    
+    // Game Over
+    gameOver: function() {
+        GB_game_over = true;
+        
+        // Game over hint
+        this.labelGameOver = game.add.text(20, 200, "Press space to play", 
+            { font: "40px Arial", fill: "#ffffff" });
+    },
+    
     // Restart the game
     restartGame: function() {
+        
+        GB_game_over = false;
+        
         // Start the 'main' state, which restarts the game
         game.state.start('main');
+        
     },
     
     // Death animation (called before restarting game)
