@@ -53,6 +53,9 @@ var mainState = {
         
         // add the jump sound in the game
         this.jumpSound = game.add.audio('jump'); 
+        
+        // jump once
+        this.jump();
     },
 
     // This function is called 60 times per second    
@@ -81,8 +84,11 @@ var mainState = {
     // Make the bird jump 
     jump: function() {
         // trigger restart of game if game is over
-        if (GB_game_over == true)
-            this.restartGame();        
+        if (GB_game_over == true){
+            this.restartGame();
+            return;
+        }
+            
         
         // block jumping if the bird is dead
         if (this.bird.alive == false)
