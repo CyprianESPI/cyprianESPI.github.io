@@ -1,5 +1,5 @@
 // global variable
-var GB_game_over = true;
+var GB_game_over = false;
 
 // Create our 'main' state that will contain the game
 var mainState = {
